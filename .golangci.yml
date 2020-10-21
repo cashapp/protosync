@@ -1,0 +1,55 @@
+# Exhaustive list of options here:
+# https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml
+run:
+  deadline: 5m
+  tests: true
+
+output:
+  print-issued-lines: false
+
+linters:
+  enable-all: true
+  disable:
+    - gci
+    - godot
+    - lll
+    - maligned
+    - wsl
+    - gochecknoglobals
+    - nlreturn
+    - gomnd
+    - noctx
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  golint:
+    min-confidence: 0
+  dupl:
+    threshold: 100
+  goconst:
+    min-len: 4
+    min-occurrences: 3
+  gocyclo:
+    min-complexity: 25 # TODO (dweisberg) Lower this after refactor
+
+issues:
+  max-per-linter: 20
+  max-same: 0
+  exclude-use-default: false
+  exclude:
+    # err shadowing
+    - 'declaration of "err" shadows declaration at'
+    # Params are often used as the input to action rollbacks and then converted into appropriate locators
+    - 'should convert params .*Params.*Locator'
+    # Captured by errcheck.
+    - '^(G104|G204):'
+    # Very commonly not checked.
+    - 'Error return value of .(.*\.Help|.*\.MarkFlagRequired|Delete.*|(os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*printf?|os\.(Un)?Setenv). is not checked'
+    # Exclude Kong convenience tags (these can actually be made conformant with eg. `cmd:""`, but eh)
+    - 'struct field tag .*(cmd|arg|required).* not compatible with reflect.StructTag.Get: bad syntax for struct tag pair'
+    # gas: False positive is triggered by 'src, err := ioutil.ReadFile(filename)'
+    - 'Potential file inclusion via variable'
+    # Allow creating directories with 755 permissions
+    - '^(G301|G307|G107):'
+    - "unless it's in another file for this package"
