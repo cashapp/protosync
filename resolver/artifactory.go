@@ -143,7 +143,7 @@ func syncJARMetadata(artifactoryURL, repositoryPath string) (string, error) {
 		if se, ok := t.(xml.StartElement); ok {
 			if se.Name.Local == "latest" {
 				var version string
-				return version, dec.DecodeElement(&version, &se)
+				return version, errors.WithStack(dec.DecodeElement(&version, &se))
 			}
 		}
 	}

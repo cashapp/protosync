@@ -64,6 +64,17 @@ optimisation due to the use of large monorepos at Square, where cloning down
 hundreds of megabytes of source to retrieve one or two files was
 unreasonable. That said, a git-based resolver will be added.
 
+## Development
+
+Protosync uses [hermit](https://cashapp.github.io/hermit/) for uniform
+tooling. Just clone this repo, activate hermit and you are ready to
+build, test and lint:
+
+    . ./bin/activate-hermit
+    go build ./cmd/protosync
+    go test ./...
+    golangci-lint run
+
 ## License
 
 Copyright 2021 Square, Inc.
