@@ -14,7 +14,7 @@ imports from third party, or your own .proto files.
 
 ## Contributing
 
-Code is always welcome, but so to are extra `repo` entries in the builtin config. The
+Code is always welcome, but so too are extra `repo` entries in the builtin config. The
 more repo entries are built in, the more .proto files can be resolved by default!
 
 ## Example
