@@ -10,15 +10,21 @@ output:
 linters:
   enable-all: true
   disable:
+    - exhaustivestruct
+    - forbidigo
     - gci
+    - gochecknoglobals
     - godot
+    - golint
+    - gomnd
+    - interfacer
     - lll
     - maligned
-    - wsl
-    - gochecknoglobals
     - nlreturn
-    - gomnd
     - noctx
+    - revive
+    - scopelint
+    - wsl
 
 linters-settings:
   govet:
@@ -40,6 +46,8 @@ issues:
   exclude:
     # err shadowing
     - 'declaration of "err" shadows declaration at'
+    # wrapcheck for errors.WithStack
+    - 'github.com/pkg/errors.WithStack'
     # Params are often used as the input to action rollbacks and then converted into appropriate locators
     - 'should convert params .*Params.*Locator'
     # Captured by errcheck.

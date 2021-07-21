@@ -37,7 +37,7 @@ func (c *Config) Decode(ctx *kong.DecodeContext) error { // nolint: golint
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	return hcl.Unmarshal(data, c)
+	return errors.WithStack(hcl.Unmarshal(data, c))
 }
 
 // Resolve config to resolvers and glob-expanded sources.
@@ -73,5 +73,5 @@ func (c *Config) Resolve() (resolvers []resolver.Resolver, sources []string, err
 // Parse configuration.
 func Parse(config []byte) (*Config, error) {
 	c := &Config{}
-	return c, hcl.Unmarshal(config, c)
+	return c, errors.WithStack(hcl.Unmarshal(config, c))
 }

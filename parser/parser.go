@@ -278,5 +278,5 @@ var parser = participle.MustBuild(&Proto{}, participle.UseLookahead(2))
 // Parse protobuf.
 func Parse(r io.Reader) (*Proto, error) {
 	p := &Proto{}
-	return p, parser.Parse(r, p)
+	return p, errors.WithStack(parser.Parse(r, p))
 }

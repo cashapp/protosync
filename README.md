@@ -14,7 +14,7 @@ imports from third party, or your own .proto files.
 
 ## Contributing
 
-Code is always welcome, but so to are extra `repo` entries in the builtin config. The
+Code is always welcome, but so too are extra `repo` entries in the builtin config. The
 more repo entries are built in, the more .proto files can be resolved by default!
 
 ## Example
@@ -63,6 +63,17 @@ protos via HTTP rather than cloning via git. This is primarily an
 optimisation due to the use of large monorepos at Square, where cloning down
 hundreds of megabytes of source to retrieve one or two files was
 unreasonable. That said, a git-based resolver will be added.
+
+## Development
+
+Protosync uses [hermit](https://cashapp.github.io/hermit/) for uniform
+tooling. Just clone this repo, activate hermit and you are ready to
+build, test and lint:
+
+    . ./bin/activate-hermit
+    go build ./cmd/protosync
+    go test ./...
+    golangci-lint run
 
 ## License
 
