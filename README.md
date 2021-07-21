@@ -56,13 +56,12 @@ for the configuration file as well as command-line usage.
 The `protosync` command-line tool is a thin wrapper around an extensible API. Look 
 at the `resolver` package to see example implementations of how to extend `protosync`.
 
-## Why doesn't this use git clone?
+## Does this use git clone?
 
-As the above example illustrates, `protosync` attempts to directly retrieve
-protos via HTTP rather than cloning via git. This is primarily an
-optimisation due to the use of large monorepos at Square, where cloning down
-hundreds of megabytes of source to retrieve one or two files was
-unreasonable. That said, a git-based resolver will be added.
+As the above example illustrates, `protosync` first attempts to directly
+retrieve protos via HTTP. This is primarily an optimisation for large
+repos. If the download fails, `git clone` is attempted - a useful
+workaround for private repositories.
 
 ## Development
 
