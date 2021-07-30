@@ -122,7 +122,9 @@ func bitBucketFetcher(repoURL *url.URL, relSrc, commit string) (NamedReadCloser,
 	return httpGet(u.String())
 }
 
-func githubFetcher(u *url.URL, relSrc, commit string) (NamedReadCloser, error) {
+func githubFetcher(ou *url.URL, relSrc, commit string) (NamedReadCloser, error) {
+	u := &url.URL{}
+	*u = *ou
 	u.Scheme = "https"
 	parts := strings.Split(strings.TrimSuffix(u.Path, ".git"), "/")
 	if len(parts) != 3 {
