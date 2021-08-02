@@ -14,6 +14,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	giturls "github.com/whilp/git-urls"
+
 	"github.com/pkg/errors"
 )
 
@@ -32,6 +34,15 @@ func (r *Repo) Commit() string {
 		return "master"
 	}
 	return r.CommitHash
+}
+
+// ParseURL with giturls library
+func (r *Repo) ParseURL() (*url.URL, error) {
+	u, err := giturls.Parse(r.URL)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return u, nil
 }
 
 // RemoteConfig contains the configuration for Remote().
@@ -67,7 +78,7 @@ func findRepoForImport(repos []Repo, path string) *Repo {
 type fetcherFunc func(u *url.URL, src, commit string) (NamedReadCloser, error)
 
 func fetchProto(config RemoteConfig, repo *Repo, proto string) (NamedReadCloser, error) {
-	repoURL, err := url.Parse(repo.URL)
+	repoURL, err := repo.ParseURL()
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -126,12 +137,13 @@ func githubFetcher(ou *url.URL, relSrc, commit string) (NamedReadCloser, error) 
 	u := &url.URL{}
 	*u = *ou
 	u.Scheme = "https"
-	parts := strings.Split(strings.TrimSuffix(u.Path, ".git"), "/")
-	if len(parts) != 3 {
+	sanitisedPath := strings.TrimPrefix(strings.TrimSuffix(u.Path, ".git"), "/")
+	parts := strings.Split(sanitisedPath, "/")
+	if len(parts) != 2 {
 		return nil, errors.Errorf("expected GitHub URL path in the form /<user>/<repo>.git but got %q", u.Path)
 	}
-	user := parts[1]
-	project := parts[2]
+	user := parts[0]
+	project := parts[1]
 	u, err := url.Parse(fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/%s/%s", user, project, commit, relSrc))
 	if err != nil {
 		return nil, errors.WithStack(err)
