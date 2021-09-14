@@ -7,10 +7,10 @@ retrieving all imports.
 
 ## What problem does this solve?
 
-Unlike most modern languages, Protobufs does not have a packaging system. The typical
+Unlike most modern languages, Protobufs do not have a packaging system. The typical
 solution to using third party Protobufs then becomes copying those .proto files into 
 your source. This tool automates that process by recursively parsing and resolving 
-imports from third party, or your own .proto files.
+imports from third party, or your own, `.proto` files.
 
 ## Contributing
 
