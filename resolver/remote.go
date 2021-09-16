@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -14,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/cashapp/protosync/log"
 	giturls "github.com/whilp/git-urls"
 
 	"github.com/pkg/errors"
@@ -91,10 +93,7 @@ func fetchProto(config RemoteConfig, repo *Repo, proto string) (NamedReadCloser,
 	relPath := path.Join(repo.Root, proto)
 	r, err := fetcher(u, relPath, repo.Commit())
 	if errors.Is(err, errNotFound) { // try cloning repo
-		fetchErr := err
-		if r, err = cloner(u, relPath, repo.Commit()); err != nil {
-			err = errors.Wrap(fetchErr, err.Error())
-		}
+		r, err = cloner(u, relPath, repo.Commit())
 	}
 	if err != nil {
 		return nil, errors.Wrap(err, repo.URL)
@@ -222,10 +221,14 @@ func gitClone(sourceURL, destDir string) error {
 
 // runInDir runs a command in the given directory.
 func runInDir(dir, cmdStr string, args ...string) error {
+	log.Debugf("%s> %s %s", dir, cmdStr, strings.Join(args, " "))
+	buf := &bytes.Buffer{}
+	w := io.MultiWriter(buf, os.Stderr)
 	cmd := exec.Command(cmdStr, args...)
+	cmd.Stderr = w
 	cmd.Dir = dir
 	if err := cmd.Run(); err != nil {
-		return errors.Wrapf(err, "%s %s failed", cmd, strings.Join(args, " "))
+		return errors.Wrapf(err, "%s: %s", cmd, buf)
 	}
 	return nil
 }
