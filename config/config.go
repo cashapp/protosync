@@ -21,6 +21,7 @@ var Schema = func() string {
 
 // Config represents the protosync index configuration format.
 type Config struct {
+	Dest        string                       `hcl:"dest,optional" help:"Destination where .proto files will be stored."`
 	Remote      resolver.RemoteConfig        `hcl:"remote,block" help:"Configuration for remote repositories."`
 	Sources     []string                     `hcl:"sources,optional" help:"List of remote imports or local root globals to resolve imports from."`
 	Include     []string                     `hcl:"include,optional" help:"Globbed local include roots to search for proto files (eg. apps/*/protos)."`
