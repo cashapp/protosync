@@ -84,7 +84,7 @@ func main() {
 		fmt.Println()
 		ctx.Fatalf("sources not provided on command line (--sources) or configuration file")
 	}
-	_, err = protosync.Sync(resolver.Combine(resolvers...), cli.Dest, sources...)
+	_, err = protosync.Sync(resolver.Combine(resolvers...), dest, sources...)
 	ctx.FatalIfErrorf(err)
 }
 
