@@ -47,7 +47,7 @@ Default repositories always included (unless --no-defaults is used):
 
 var cli struct {
 	LoggingConfig log.Config     `embed:""`
-	Config        *config.Config `help:"Protosync config file path." placeholder:"FILE"`
+	Config        *config.Config `help:"Protosync config file path." placeholder:"FILE" default:"protosync.hcl"`
 	Dest          string         `short:"d" type:"existingdir" placeholder:"DIR" help:"Destination root to sync files to."`
 	Includes      []string       `short:"I" help:"Additional local include roots to search, and scan for dependencies to resolve."`
 	Sources       []string       `arg:"" optional:"" help:"Additional proto files to sync."`
