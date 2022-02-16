@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/alecthomas/kong"
@@ -47,7 +49,7 @@ Default repositories always included (unless --no-defaults is used):
 
 var cli struct {
 	LoggingConfig log.Config     `embed:""`
-	Config        *config.Config `help:"Protosync config file path." placeholder:"FILE" default:"protosync.hcl"`
+	Config        *config.Config `help:"Protosync config file path." placeholder:"protosync.hcl"`
 	Dest          string         `short:"d" type:"existingdir" placeholder:"DIR" help:"Destination root to sync files to."`
 	Includes      []string       `short:"I" help:"Additional local include roots to search, and scan for dependencies to resolve."`
 	Sources       []string       `arg:"" optional:"" help:"Additional proto files to sync."`
@@ -59,10 +61,19 @@ func main() {
 	if cli.Config == nil {
 		if cli.NoDefaults {
 			cli.Config = &config.Config{}
-		} else {
+		} else if r, err := os.Open("protosync.hcl"); err == nil {
+			data, err := ioutil.ReadAll(r)
+			_ = r.Close()
+			ctx.FatalIfErrorf(err)
+			conf, err := config.Parse(data)
+			ctx.FatalIfErrorf(err)
+			cli.Config = conf
+		} else if os.IsNotExist(err) {
 			conf, err := config.Parse([]byte(builtinConfig))
 			ctx.FatalIfErrorf(err)
 			cli.Config = conf
+		} else {
+			ctx.FatalIfErrorf(err)
 		}
 	}
 	dest := cli.Dest
