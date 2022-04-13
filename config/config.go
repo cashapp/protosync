@@ -3,6 +3,7 @@ package config
 
 import (
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/alecthomas/hcl"
@@ -72,7 +73,42 @@ func (c *Config) Resolve() (resolvers []resolver.Resolver, sources []string, err
 }
 
 // Parse configuration.
-func Parse(config []byte) (*Config, error) {
+//
+// "vars" will be interpolated into the HCL before unmarshalling.
+func Parse(config []byte, vars map[string]string) (*Config, error) {
 	c := &Config{}
-	return c, errors.WithStack(hcl.Unmarshal(config, c))
+	ast, err := hcl.ParseBytes(config)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	var substErr error
+	subst := func(pos hcl.Position, s string) string {
+		return os.Expand(s, func(key string) string {
+			val, ok := vars[key]
+			if !ok {
+				substErr = errors.Errorf("%s: variable $%s not defined", pos, key)
+				return "$" + key
+			}
+			return val
+		})
+	}
+	err = hcl.Visit(ast, func(node hcl.Node, next func() error) error {
+		switch node := node.(type) {
+		case *hcl.Value:
+			switch {
+			case node.Str != nil:
+				*node.Str = subst(node.Pos, *node.Str)
+			case node.Heredoc != nil:
+				*node.Heredoc = subst(node.Pos, *node.Heredoc)
+			}
+		}
+		if substErr != nil {
+			return substErr
+		}
+		return next()
+	})
+	if err != nil {
+		return nil, err
+	}
+	return c, errors.WithStack(hcl.UnmarshalAST(ast, c))
 }

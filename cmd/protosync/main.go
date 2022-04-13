@@ -48,12 +48,13 @@ Default repositories always included (unless --no-defaults is used):
 )
 
 var cli struct {
-	LoggingConfig log.Config     `embed:""`
-	Config        *config.Config `help:"Protosync config file path." placeholder:"protosync.hcl"`
-	Dest          string         `short:"d" type:"existingdir" placeholder:"DIR" help:"Destination root to sync files to."`
-	Includes      []string       `short:"I" help:"Additional local include roots to search, and scan for dependencies to resolve."`
-	Sources       []string       `arg:"" optional:"" help:"Additional proto files to sync."`
-	NoDefaults    bool           `help:"Don't include the set of default repositories.'"`
+	LoggingConfig log.Config        `embed:""`
+	Set           map[string]string `help:"Set variables for interpolating into the config."`
+	Config        *config.Config    `help:"Protosync config file path." placeholder:"protosync.hcl"`
+	Dest          string            `short:"d" type:"existingdir" placeholder:"DIR" help:"Destination root to sync files to."`
+	Includes      []string          `short:"I" help:"Additional local include roots to search, and scan for dependencies to resolve."`
+	Sources       []string          `arg:"" optional:"" help:"Additional proto files to sync."`
+	NoDefaults    bool              `help:"Don't include the set of default repositories.'"`
 }
 
 func main() {
@@ -65,11 +66,11 @@ func main() {
 			data, err := ioutil.ReadAll(r)
 			_ = r.Close()
 			ctx.FatalIfErrorf(err)
-			conf, err := config.Parse(data)
+			conf, err := config.Parse(data, cli.Set)
 			ctx.FatalIfErrorf(err)
 			cli.Config = conf
 		} else if os.IsNotExist(err) {
-			conf, err := config.Parse([]byte(builtinConfig))
+			conf, err := config.Parse([]byte(builtinConfig), cli.Set)
 			ctx.FatalIfErrorf(err)
 			cli.Config = conf
 		} else {
