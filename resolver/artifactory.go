@@ -46,7 +46,7 @@ func ArtifactoryJAR(artifactoryURL, jarURL string, repository ArtifactoryReposit
 			var err error
 			jarPath, zipFile, err = openJAR(artifactoryURL, jarURL, repository)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, jarURL)
 			}
 		}
 		for _, file := range zipFile.File {
@@ -90,13 +90,17 @@ func openJAR(artifactoryURL, jarBaseURL string, repository ArtifactoryRepository
 	log.Debugf("Syncing %s version %s", repository.Path, version)
 	req, err := http.NewRequest("GET", jarPath, nil)
 	if err != nil {
-		return "", nil, errors.WithStack(err)
+		return "", nil, errors.Wrap(err, jarPath)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", nil, errors.WithStack(err)
+		return "", nil, errors.Wrap(err, jarPath)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		return "", nil, errors.Errorf("%d: %s", resp.StatusCode, resp.Status)
+	}
 
 	log.Debugf("  <- %s (%s)", jarPath, humanSize(resp.ContentLength))
 	log.Debugf("  -> %s", dest)

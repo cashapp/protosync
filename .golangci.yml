@@ -30,6 +30,8 @@ linters:
     - ireturn
     - wrapcheck
     - errchkjson
+    - nestif
+    - cyclop
 
 linters-settings:
   govet:

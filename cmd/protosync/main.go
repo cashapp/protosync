@@ -50,7 +50,7 @@ Default repositories always included (unless --no-defaults is used):
 var cli struct {
 	LoggingConfig log.Config        `embed:""`
 	Set           map[string]string `help:"Set variables for interpolating into the config."`
-	Config        *config.Config    `help:"Protosync config file path." placeholder:"protosync.hcl"`
+	Config        string            `help:"Protosync config file path." placeholder:"protosync.hcl"`
 	Dest          string            `short:"d" type:"existingdir" placeholder:"DIR" help:"Destination root to sync files to."`
 	Includes      []string          `short:"I" help:"Additional local include roots to search, and scan for dependencies to resolve."`
 	Sources       []string          `arg:"" optional:"" help:"Additional proto files to sync."`
@@ -59,34 +59,32 @@ var cli struct {
 
 func main() {
 	ctx := kong.Parse(&cli, kong.UsageOnError(), kong.Description(fmt.Sprintf(help, indent(config.Schema), indent(builtinConfig))))
-	if cli.Config == nil {
+	var conf *config.Config
+	var err error
+	if cli.Config == "" {
 		if cli.NoDefaults {
-			cli.Config = &config.Config{}
-		} else if r, err := os.Open("protosync.hcl"); err == nil {
-			data, err := ioutil.ReadAll(r)
-			_ = r.Close()
-			ctx.FatalIfErrorf(err)
-			conf, err := config.Parse(data, cli.Set)
-			ctx.FatalIfErrorf(err)
-			cli.Config = conf
-		} else if os.IsNotExist(err) {
-			conf, err := config.Parse([]byte(builtinConfig), cli.Set)
-			ctx.FatalIfErrorf(err)
-			cli.Config = conf
-		} else {
-			ctx.FatalIfErrorf(err)
+			conf = &config.Config{}
+		} else if conf, err = loadConfig("protosync.hcl"); err != nil {
+			if os.IsNotExist(err) {
+				conf, err = config.Parse([]byte(builtinConfig), cli.Set)
+				ctx.FatalIfErrorf(err)
+			} else {
+				ctx.FatalIfErrorf(err)
+			}
 		}
+	} else if conf, err = loadConfig(cli.Config); err != nil {
+		ctx.FatalIfErrorf(err)
 	}
 	dest := cli.Dest
 	if dest == "" {
-		dest = cli.Config.Dest
+		dest = conf.Dest
 	}
 	if dest == "" {
 		ctx.Fatalf("destination not provided on command line (--dest) or configuration file")
 	}
-	err := log.Configure(cli.LoggingConfig)
+	err = log.Configure(cli.LoggingConfig)
 	ctx.FatalIfErrorf(err)
-	resolvers, sources, err := cli.Config.Resolve()
+	resolvers, sources, err := conf.Resolve()
 	ctx.FatalIfErrorf(err)
 	resolvers = append(resolvers, resolver.Local(cli.Includes))
 	sources = append(sources, cli.Sources...)
@@ -102,4 +100,17 @@ func main() {
 
 func indent(s string) string {
 	return "\n  " + strings.Join(strings.Split(strings.TrimSpace(s), "\n"), "\n  ")
+}
+
+func loadConfig(path string) (*config.Config, error) {
+	r, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+	return config.Parse(data, cli.Set)
 }
