@@ -25,6 +25,11 @@ linters:
     - revive
     - scopelint
     - wsl
+    - gocritic
+    - varnamelen
+    - ireturn
+    - wrapcheck
+    - errchkjson
 
 linters-settings:
   govet:
