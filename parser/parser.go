@@ -21,7 +21,7 @@ type Entry struct {
 
 	Syntax  string   `  "syntax" "=" @String`
 	Package string   `| "package" @(Ident { "." Ident })`
-	Import  string   `| "import" @String`
+	Import  string   `| "import" "public"? @String`
 	Message *Message `| @@`
 	Service *Service `| @@`
 	Enum    *Enum    `| @@`
