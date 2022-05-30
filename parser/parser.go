@@ -41,7 +41,7 @@ type Value struct {
 	Pos lexer.Position
 
 	String    *string  `  @String`
-	Number    *float64 `| ("-" | "+")? @Float`
+	Number    *float64 `| ("-" | "+")? @(Float | "inf")`
 	Int       *int64   `| ("-" | "+")? @Int`
 	Bool      *bool    `| (@"true" | "false")`
 	Reference *string  `| @("."? Ident { "." Ident })`
