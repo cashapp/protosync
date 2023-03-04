@@ -88,7 +88,7 @@ func openJAR(artifactoryURL, jarBaseURL string, repository ArtifactoryRepository
 	// Download the JAR file into the user's cache directory.
 	jarPath := fmt.Sprintf("%s/%s/%s/%s", jarBaseURL, repository.Path, version, filename)
 	log.Debugf("Syncing %s version %s", repository.Path, version)
-	req, err := http.NewRequest("GET", jarPath, nil)
+	req, err := http.NewRequest(http.MethodGet, jarPath, nil)
 	if err != nil {
 		return "", nil, errors.Wrap(err, jarPath)
 	}

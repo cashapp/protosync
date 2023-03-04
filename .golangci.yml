@@ -32,6 +32,9 @@ linters:
     - errchkjson
     - nestif
     - cyclop
+    - exhaustruct
+    - nonamedreturns
+    - nolintlint
 
 linters-settings:
   govet:

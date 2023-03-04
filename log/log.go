@@ -39,7 +39,7 @@ const (
 	LevelFatal              // fatal
 )
 
-func (l *Level) UnmarshalText(text []byte) error { // nolint: golint
+func (l *Level) UnmarshalText(text []byte) error { //nolint:golint
 	var err error
 	*l, err = LevelFromString(string(text))
 	return err
@@ -196,7 +196,7 @@ func (l *Logger) prefixIt() string {
 
 // Elapsed logs the duration of a function call. Use with defer:
 //
-// 		defer Elapsed(log, "something")()
+//	defer Elapsed(log, "something")()
 func Elapsed(log *Logger, message string, args ...interface{}) func() {
 	start := time.Now()
 	return func() {

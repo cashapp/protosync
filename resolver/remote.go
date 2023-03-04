@@ -209,7 +209,7 @@ func gitClone(sourceURL, destDir string) error {
 		return errors.Wrap(err, "cannot create temp directory for git clone")
 	}
 	defer os.RemoveAll(tmpDestDir)
-	if err = runInDir(tmpDestDir, "git", "clone", sourceURL, tmpDestDir); err != nil {
+	if err = runInDir(tmpDestDir, "git", "clone", "--depth=1", sourceURL, tmpDestDir); err != nil {
 		return errors.WithStack(err)
 	}
 	// And finally, rename it into place.
